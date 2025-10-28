@@ -14,12 +14,12 @@ export default function FileExplorer({
 }) {
   const [filename, setFilename] = useState("");
   const [foldername, setFoldername] = useState("");
+  const [currentPath, setCurrentPath] = useState(""); // track where we are inside folders
 
   const handleDownloadAll = async () => {
     const zip = new JSZip();
     Object.keys(files).forEach((key) => {
       if (key.endsWith("/")) {
-        // folder - ensure exists
         zip.folder(key.replace(/\/$/, ""));
       } else {
         zip.file(key, files[key] || "");
@@ -29,6 +29,34 @@ export default function FileExplorer({
     saveAs(blob, "cipherstudio_project.zip");
   };
 
+  // Helper: get current folder contents only
+  const currentFiles = Object.keys(files).filter((key) => {
+    // root files if currentPath === ""
+    if (currentPath === "") {
+      return !key.includes("/") || key.indexOf("/") === key.length - 1;
+    }
+    return (
+      key.startsWith(currentPath) &&
+      key !== currentPath &&
+      key.slice(currentPath.length).split("/").length <= 2
+    );
+  });
+
+  // Navigation helpers
+  const goToFolder = (path) => setCurrentPath(path);
+  const goBack = () => {
+    if (!currentPath) return;
+    const parts = currentPath.split("/").filter(Boolean);
+    parts.pop();
+    setCurrentPath(parts.length ? parts.join("/") + "/" : "");
+  };
+
+  const fullFilePath = (name) =>
+    currentPath ? currentPath + name : name;
+
+  const fullFolderPath = (name) =>
+    currentPath ? currentPath + name + "/" : name + "/";
+
   return (
     <div className="fe-root">
       <div className="fe-logo">
@@ -37,63 +65,105 @@ export default function FileExplorer({
       </div>
 
       <div className="fe-controls">
+        {currentPath && (
+          <button className="fe-action" onClick={goBack}>
+            🔙 Back
+          </button>
+        )}
+
         <div className="fe-input-row">
           <input
-            placeholder="New file (e.g., src/app.js)"
+            placeholder={`New file (${currentPath || "root"})`}
             value={filename}
             onChange={(e) => setFilename(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && (onCreateFile(filename) || setFilename(""))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && filename.trim()) {
+                onCreateFile(fullFilePath(filename.trim()));
+                setFilename("");
+              }
+            }}
           />
-          <button className="fe-btn" onClick={() => { if (filename) { onCreateFile(filename); setFilename(""); }}}>＋</button>
+          <button
+            className="fe-btn"
+            onClick={() => {
+              if (filename.trim()) {
+                onCreateFile(fullFilePath(filename.trim()));
+                setFilename("");
+              }
+            }}
+          >
+            ＋
+          </button>
         </div>
 
         <div className="fe-input-row">
           <input
-            placeholder="New folder (e.g., src/components)"
+            placeholder={`New folder (${currentPath || "root"})`}
             value={foldername}
             onChange={(e) => setFoldername(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && (onCreateFolder(foldername) || setFoldername(""))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && foldername.trim()) {
+                onCreateFolder(fullFolderPath(foldername.trim()));
+                setFoldername("");
+              }
+            }}
           />
-          <button className="fe-btn" onClick={() => { if (foldername) { onCreateFolder(foldername); setFoldername(""); }}}>📁</button>
+          <button
+            className="fe-btn"
+            onClick={() => {
+              if (foldername.trim()) {
+                onCreateFolder(fullFolderPath(foldername.trim()));
+                setFoldername("");
+              }
+            }}
+          >
+            📁
+          </button>
         </div>
 
         <div className="fe-actions">
-          <button className="fe-action" onClick={handleDownloadAll}>⬇ Download ZIP</button>
+          <button className="fe-action" onClick={handleDownloadAll}>
+            ⬇ Download ZIP
+          </button>
         </div>
       </div>
 
       <div className="fe-list" role="list">
-        {Object.keys(files).length === 0 && <div className="fe-empty">No files yet</div>}
-        {Object.keys(files)
-          .sort()
-          .map((key) => {
-            const isFolder = key.endsWith("/");
-            const display = isFolder ? key : key.split("/").pop();
-            return (
-              <div
-                key={key}
-                className={`fe-item ${selected === key ? "active" : ""}`}
-                onClick={() => !isFolder && onSelect(key)}
-              >
-                <div className="fe-item-left">
-                  <span className="fe-icon">{isFolder ? "📁" : "📄"}</span>
-                  <span className="fe-name">{display}</span>
-                </div>
-                <div className="fe-item-right">
-                  <button
-                    className="fe-del"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete(key);
-                    }}
-                    title="Delete"
-                  >
-                    🗑
-                  </button>
-                </div>
+        {currentFiles.length === 0 && (
+          <div className="fe-empty">No files/folders here</div>
+        )}
+        {currentFiles.sort().map((key) => {
+          const isFolder = key.endsWith("/");
+          const display = key
+            .slice(currentPath.length)
+            .replace(/\/$/, "");
+          return (
+            <div
+              key={key}
+              className={`fe-item ${selected === key ? "active" : ""}`}
+              onClick={() =>
+                isFolder ? goToFolder(key) : onSelect(key)
+              }
+            >
+              <div className="fe-item-left">
+                <span className="fe-icon">{isFolder ? "📁" : "📄"}</span>
+                <span className="fe-name">{display}</span>
               </div>
-            );
-          })}
+              <div className="fe-item-right">
+                <button
+                  className="fe-del"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(key);
+                  }}
+                  title="Delete"
+                >
+                  🗑
+                </button>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

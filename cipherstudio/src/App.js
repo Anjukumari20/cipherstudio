@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import FileExplorer from "./components/FileExplorer";
 import CodeEditor from "./components/CodeEditor";
 import OutputConsole from "./components/OutputConsole";
-import SandpackIDE from "./components/SandpackIDE"; // 👈 ADD THIS
+import SandpackIDE from "./components/SandpackIDE";
 import "./App.css";
 
 function App() {
@@ -15,7 +15,16 @@ function App() {
   );
   const [selected, setSelected] = useState("main.js");
   const [output, setOutput] = useState("");
-  const [showSandpack, setShowSandpack] = useState(false); // 👈 Toggle Sandpack view
+  const [showSandpack, setShowSandpack] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // ✅ Check if user logged in
+  useEffect(() => {
+    const savedUser = JSON.parse(localStorage.getItem("cipherUser"));
+    if (savedUser) {
+      setUser(savedUser);
+    }
+  }, []);
 
   useEffect(() => {
     localStorage.setItem("cipher_files", JSON.stringify(files));
@@ -25,22 +34,38 @@ function App() {
     }
   }, [files, selected]);
 
+  // ✅ Create file (support folder nesting)
   const createFile = (path) => {
     if (!path) return;
     const clean = path.trim();
-    if (files[clean]) return alert("File/folder already exists.");
+    if (files[clean]) {
+      alert("File/folder already exists.");
+      return;
+    }
+
+    const parentFolder = clean.substring(0, clean.lastIndexOf("/") + 1);
+    if (parentFolder && !files[parentFolder]) {
+      alert("Parent folder doesn't exist!");
+      return;
+    }
+
     setFiles((prev) => ({ ...prev, [clean]: "// new file\n" }));
     setSelected(clean);
   };
 
+  // ✅ Create folder
   const createFolder = (folderName) => {
     if (!folderName) return;
     const name = folderName.trim();
     const folderKey = name.endsWith("/") ? name : name + "/";
-    if (files[folderKey]) return alert("Folder already exists.");
+    if (files[folderKey]) {
+      alert("Folder already exists.");
+      return;
+    }
     setFiles((prev) => ({ ...prev, [folderKey]: null }));
   };
 
+  // ✅ Delete file/folder
   const deleteEntry = (key) => {
     if (!window.confirm(`Delete "${key}" ?`)) return;
     setFiles((prev) => {
@@ -57,10 +82,12 @@ function App() {
     setSelected(first || "");
   };
 
+  // ✅ Update file content
   const updateFileContent = (path, content) => {
     setFiles((prev) => ({ ...prev, [path]: content }));
   };
 
+  // ✅ Run code
   const runSelectedCode = () => {
     const code = files[selected];
     if (!code) return setOutput("// Select a file with runnable code");
@@ -75,6 +102,12 @@ function App() {
     } catch (err) {
       setOutput("Error: " + err.message);
     }
+  };
+
+  // ✅ Handle logout
+  const handleLogout = () => {
+    localStorage.removeItem("cipherUser");
+    setUser(null);
   };
 
   return (
@@ -94,6 +127,7 @@ function App() {
         <div className="cs-editor-toolbar">
           <div className="tabs">
             <div className="tab">{selected || "No file selected"}</div>
+
             <button className="run" onClick={runSelectedCode}>▶ Run</button>
             <button
               className="run"
@@ -102,6 +136,25 @@ function App() {
             >
               💻 Sandpack
             </button>
+
+            {/* ✅ Login/Logout button */}
+            {user ? (
+              <>
+                <span className="welcome-text">
+                  Welcome, {user.firstName || "User"}!
+                </span>
+                <button className="logout-btn" onClick={handleLogout}>
+                  🚪 Logout
+                </button>
+              </>
+            ) : (
+              <button
+                className="run login"
+                onClick={() => (window.location.href = "/login")}
+              >
+                🔑 Login
+              </button>
+            )}
           </div>
         </div>
 

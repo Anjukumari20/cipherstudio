@@ -1,0 +1,146 @@
+.auth-wrapper {
+  display: flex;
+  height: 100vh;
+  background-color: #fff;
+  font-family: "Poppins", sans-serif;
+}
+
+/* Left Image Section */
+.auth-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff9f3;
+}
+
+.auth-illustration {
+  width: 80%;
+  max-width: 430px;
+}
+
+/* Right Form Section */
+.auth-right {
+  flex: 1;
+  padding: 60px 80px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.welcome-text {
+  color: #f3912e;
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #333;
+  margin-bottom: 25px;
+  font-size: 17px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.auth-form label {
+  font-weight: 500;
+  color: #444;
+  text-align: left;
+}
+
+.auth-form input,
+.auth-form select {
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 15px;
+  width: 100%;
+}
+
+.auth-form input:focus,
+.auth-form select:focus {
+  border-color: #f3912e;
+}
+
+.name-fields {
+  display: flex;
+  gap: 10px;
+}
+
+.forgot-section {
+  text-align: right;
+}
+
+.forgot-text {
+  color: #f3912e;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.login-btn {
+  background-color: #f3912e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.login-btn:hover {
+  background-color: #e27f1c;
+}
+
+.signup-text {
+  text-align: center;
+  font-size: 15px;
+  color: #333;
+  margin-top: 10px;
+}
+
+.highlight {
+  color: #f3912e;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.or-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #888;
+  margin: 20px 0;
+}
+
+.or-divider hr {
+  width: 30%;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+.google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: white;
+  padding: 10px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.google-btn img {
+  width: 22px;
+}

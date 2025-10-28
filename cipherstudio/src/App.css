@@ -65,3 +65,43 @@
   .cs-editor{ order:1; }
   .cs-output{ order:2; min-height:200px; }
 }
+
+.logout-btn {
+  margin-left: auto;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
+}
+.login {
+  background-color: #238636;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 100%;
+}
+
+.logout-btn {
+  background-color: #da3633;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.welcome-text {
+  margin-right: 10px;
+  font-weight: 500;
+  color: #c9d1d9;
+}
