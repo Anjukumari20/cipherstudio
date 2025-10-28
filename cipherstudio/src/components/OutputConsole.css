@@ -1,0 +1,22 @@
+.output-wrap{
+  display:flex;
+  flex-direction:column;
+  height:100%;
+  border-left:1px solid #222;
+  background:#080808;
+}
+.output-header{
+  padding:10px;
+  background:#0f0f0f;
+  color:#ffd18a;
+  font-weight:600;
+  border-bottom:1px solid #222;
+}
+.output-body{
+  padding:12px;
+  color:#bfffbf;
+  font-family: monospace;
+  overflow:auto;
+  white-space:pre-wrap;
+  flex:1;
+}

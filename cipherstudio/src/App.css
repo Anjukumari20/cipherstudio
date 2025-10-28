@@ -1,0 +1,67 @@
+/* root layout */
+.cs-root{
+  display:flex;
+  height:100vh;
+  background:#0a0a0a;
+  color:#fff;
+}
+
+.cs-sidebar{
+  width:240px;
+  flex-shrink:0;
+}
+
+.cs-main{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+}
+
+.cs-editor-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 12px;
+  border-bottom:1px solid #222;
+  background:linear-gradient(180deg,#0f0f0f,#0b0b0b);
+}
+
+.tabs{ display:flex; gap:8px; align-items:center; }
+
+.tab{
+  padding:6px 10px;
+  background:#121212;
+  border-radius:6px;
+  font-family:monospace;
+  font-size:13px;
+  color:#fff;
+}
+
+.run{
+  margin-left:8px;
+  background:#ffb86b;
+  border:none;
+  color:#111;
+  padding:6px 10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+.cs-workarea{
+  display:flex;
+  flex:1;
+  height:calc(100vh - 48px);
+}
+
+/* editor area and output share space */
+.cs-editor{ flex:2; }
+.cs-output{ flex:1; }
+
+/* responsive: collapse to stacked view on narrow screens */
+@media (max-width:900px){
+  .cs-root{ flex-direction:column; }
+  .cs-sidebar{ width:100%; height:auto; }
+  .cs-workarea{ flex-direction:column; height:auto; }
+  .cs-editor{ order:1; }
+  .cs-output{ order:2; min-height:200px; }
+}
