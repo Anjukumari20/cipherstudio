@@ -2,38 +2,33 @@ import React, { useState, useEffect } from "react";
 import FileExplorer from "./components/FileExplorer";
 import CodeEditor from "./components/CodeEditor";
 import OutputConsole from "./components/OutputConsole";
+import SandpackIDE from "./components/SandpackIDE"; // 👈 ADD THIS
 import "./App.css";
 
 function App() {
-  // files: object where key = path (folders end with '/'), value = file content string or null for folders
   const [files, setFiles] = useState(() =>
     JSON.parse(localStorage.getItem("cipher_files")) || {
       "main.js": "console.log('Hello CipherStudio');",
       "utils/helper.js": "// helper functions\n",
-      "assets/": null, // folder example
+      "assets/": null,
     }
   );
   const [selected, setSelected] = useState("main.js");
   const [output, setOutput] = useState("");
+  const [showSandpack, setShowSandpack] = useState(false); // 👈 Toggle Sandpack view
 
   useEffect(() => {
     localStorage.setItem("cipher_files", JSON.stringify(files));
-    // ensure selected points to an actual file
     if (!files[selected] && selected && selected.endsWith("/")) {
-      // select first file if a folder is selected accidentally
       const firstFile = Object.keys(files).find((k) => !k.endsWith("/"));
       setSelected(firstFile || "");
     }
   }, [files, selected]);
 
   const createFile = (path) => {
-    // create inside root or a folder path (user provides full path or simple filename)
     if (!path) return;
     const clean = path.trim();
-    if (files[clean]) {
-      alert("File/folder already exists.");
-      return;
-    }
+    if (files[clean]) return alert("File/folder already exists.");
     setFiles((prev) => ({ ...prev, [clean]: "// new file\n" }));
     setSelected(clean);
   };
@@ -42,16 +37,12 @@ function App() {
     if (!folderName) return;
     const name = folderName.trim();
     const folderKey = name.endsWith("/") ? name : name + "/";
-    if (files[folderKey]) {
-      alert("Folder already exists.");
-      return;
-    }
+    if (files[folderKey]) return alert("Folder already exists.");
     setFiles((prev) => ({ ...prev, [folderKey]: null }));
   };
 
   const deleteEntry = (key) => {
     if (!window.confirm(`Delete "${key}" ?`)) return;
-    // if folder, delete all contents inside that folder
     setFiles((prev) => {
       const clone = { ...prev };
       if (key.endsWith("/")) {
@@ -59,12 +50,9 @@ function App() {
         Object.keys(clone).forEach((k) => {
           if (k === key || k.startsWith(prefix)) delete clone[k];
         });
-      } else {
-        delete clone[key];
-      }
+      } else delete clone[key];
       return clone;
     });
-    // update selected
     const first = Object.keys(files).find((k) => !k.endsWith("/"));
     setSelected(first || "");
   };
@@ -75,10 +63,7 @@ function App() {
 
   const runSelectedCode = () => {
     const code = files[selected];
-    if (!code) {
-      setOutput("// Select a file with runnable code (e.g., .js)");
-      return;
-    }
+    if (!code) return setOutput("// Select a file with runnable code");
     try {
       const logs = [];
       const origLog = console.log;
@@ -109,44 +94,34 @@ function App() {
         <div className="cs-editor-toolbar">
           <div className="tabs">
             <div className="tab">{selected || "No file selected"}</div>
-            <button className="run" onClick={runSelectedCode} title="Run">
-              ▶ Run
-            </button>
+            <button className="run" onClick={runSelectedCode}>▶ Run</button>
             <button
-              className="download-single"
-              onClick={() => {
-                // download only selected file if file
-                if (!selected || selected.endsWith("/")) {
-                  alert("Select a file to download.");
-                  return;
-                }
-                const blob = new Blob([files[selected]], { type: "text/plain;charset=utf-8" });
-                // dynamic link
-                const a = document.createElement("a");
-                a.href = URL.createObjectURL(blob);
-                a.download = selected.split("/").pop();
-                a.click();
-                URL.revokeObjectURL(a.href);
-              }}
-              title="Download file"
+              className="run"
+              onClick={() => setShowSandpack(!showSandpack)}
+              title="Toggle Sandpack IDE"
             >
-              ⬇
+              💻 Sandpack
             </button>
           </div>
         </div>
 
         <div className="cs-workarea">
-          <div className="cs-editor">
-            <CodeEditor
-              path={selected}
-              content={files[selected] || ""}
-              onChange={(newCode) => updateFileContent(selected, newCode)}
-            />
-          </div>
-
-          <div className="cs-output">
-            <OutputConsole output={output} />
-          </div>
+          {showSandpack ? (
+            <SandpackIDE code={files[selected]} />
+          ) : (
+            <>
+              <div className="cs-editor">
+                <CodeEditor
+                  path={selected}
+                  content={files[selected] || ""}
+                  onChange={(newCode) => updateFileContent(selected, newCode)}
+                />
+              </div>
+              <div className="cs-output">
+                <OutputConsole output={output} />
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
